@@ -1,0 +1,497 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="OpenAndExtractAttachments" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=mscorlib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data" xmlns:si="clr-namespace:System.IO;assembly=mscorlib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:upap="clr-namespace:UiPath.PDF.Activities.PDF;assembly=UiPath.PDF.Activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="out_invoiceInformation" Type="OutArgument(sd:DataTable)" />
+  </x:Members>
+  <mva:VisualBasic.Settings>
+    <x:Null />
+  </mva:VisualBasic.Settings>
+  <sap:VirtualizedContainerService.HintSize>654,1230</sap:VirtualizedContainerService.HintSize>
+  <sap2010:WorkflowViewState.IdRef>OpenAndExtractAttachments_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <scg:List x:TypeArguments="x:String" Capacity="33">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>System.Reflection</x:String>
+      <x:String>System.Runtime.InteropServices</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Activities.DynamicUpdate</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+      <x:String>System.ComponentModel</x:String>
+      <x:String>System.Xml.Serialization</x:String>
+      <x:String>UiPath.PDF.Activities.PDF</x:String>
+      <x:String>UiPath.PDF.Activities</x:String>
+      <x:String>UiPath.Excel</x:String>
+      <x:String>UiPath.Excel.Activities</x:String>
+      <x:String>UiPath.Core.Activities.Orchestrator</x:String>
+    </scg:List>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <scg:List x:TypeArguments="AssemblyReference" Capacity="56">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization</AssemblyReference>
+      <AssemblyReference>UiPath.PDF.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Excel.Activities.Design</AssemblyReference>
+      <AssemblyReference>UiPath.Excel.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Excel</AssemblyReference>
+      <AssemblyReference>System.ValueTuple</AssemblyReference>
+      <AssemblyReference>UiPath.Mail</AssemblyReference>
+      <AssemblyReference>Microsoft.Bcl.AsyncInterfaces</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationCore</AssemblyReference>
+      <AssemblyReference>UiPath.OCR.Activities.Design</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities.Design</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+    </scg:List>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Iterate through the attachments folder, open the files to process them, extract invoice data from them and save them in an Excel spreadsheet in folders named with the invoices corresponding dates.&#xA;&#xA;Pre-condition: Download the attachments and sort them in their respective folders using SortAndDownloadEmails workflow.&#xA;Post-action: Upload the invoice total to the orchestrator queue and send confirmation email." DisplayName="OpenAttachmentsAndExtractData" sap:VirtualizedContainerService.HintSize="486,1165" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="si:DirectoryInfo" Name="attachmentsFolder" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:BuildDataTable sap2010:Annotation.AnnotationText="Build a data table that holds the invoice number sub total GST and total and output it into the out_invoiceInformation argument to be used by the next workflow to populate the queue with it.&#xA;(This is used to seperate the workflow dealing with Orchestrator from the workflows working on the local machine)" DataTable="[out_invoiceInformation]" DisplayName="Build Data Table" sap:VirtualizedContainerService.HintSize="444,176" sap2010:WorkflowViewState.IdRef="BuildDataTable_3" TableInfo="&lt;NewDataSet&gt;&#xA;  &lt;xs:schema id=&quot;NewDataSet&quot; xmlns=&quot;&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xA;    &lt;xs:element name=&quot;NewDataSet&quot; msdata:IsDataSet=&quot;true&quot; msdata:MainDataTable=&quot;TableName&quot; msdata:UseCurrentLocale=&quot;true&quot;&gt;&#xA;      &lt;xs:complexType&gt;&#xA;        &lt;xs:choice minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot;&gt;&#xA;          &lt;xs:element name=&quot;TableName&quot;&gt;&#xA;            &lt;xs:complexType&gt;&#xA;              &lt;xs:sequence&gt;&#xA;                &lt;xs:element name=&quot;Customer_x0020_Name&quot; msdata:Caption=&quot;&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;&#xA;                &lt;xs:element name=&quot;Invoice_x0020_Number&quot; msdata:Caption=&quot;&quot; minOccurs=&quot;0&quot;&gt;&#xA;                  &lt;xs:simpleType&gt;&#xA;                    &lt;xs:restriction base=&quot;xs:string&quot;&gt;&#xA;                      &lt;xs:maxLength value=&quot;100&quot; /&gt;&#xA;                    &lt;/xs:restriction&gt;&#xA;                  &lt;/xs:simpleType&gt;&#xA;                &lt;/xs:element&gt;&#xA;                &lt;xs:element name=&quot;Sub_x0020_Total&quot; msdata:Caption=&quot;&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;&#xA;                &lt;xs:element name=&quot;GST&quot; msdata:Caption=&quot;&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;&#xA;                &lt;xs:element name=&quot;TOTAL&quot; msdata:Caption=&quot;&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;&#xA;              &lt;/xs:sequence&gt;&#xA;            &lt;/xs:complexType&gt;&#xA;          &lt;/xs:element&gt;&#xA;        &lt;/xs:choice&gt;&#xA;      &lt;/xs:complexType&gt;&#xA;      &lt;xs:unique name=&quot;Constraint1&quot;&gt;&#xA;        &lt;xs:selector xpath=&quot;.//TableName&quot; /&gt;&#xA;        &lt;xs:field xpath=&quot;Invoice_x0020_Number&quot; /&gt;&#xA;      &lt;/xs:unique&gt;&#xA;    &lt;/xs:element&gt;&#xA;  &lt;/xs:schema&gt;&#xA;&lt;/NewDataSet&gt;">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+    </ui:BuildDataTable>
+    <ui:GetFolderInfoX sap2010:Annotation.AnnotationText="Get the directory information of the folder where attachments were saved." DisplayName="Get Attachments Folder Info" FolderPath="Attachments" sap:VirtualizedContainerService.HintSize="444,163" sap2010:WorkflowViewState.IdRef="GetFolderInfoX_1" Output="[attachmentsFolder]">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+    </ui:GetFolderInfoX>
+    <TryCatch DisplayName="Try Catch" sap:VirtualizedContainerService.HintSize="444,522" sap2010:WorkflowViewState.IdRef="TryCatch_1">
+      <TryCatch.Try>
+        <ui:ForEach x:TypeArguments="si:DirectoryInfo" CurrentIndex="{x:Null}" sap2010:Annotation.AnnotationText="Iterate through folders in Attachments folder." DisplayName="For Each Folder in Attachments Folder" sap:VirtualizedContainerService.HintSize="200,93" sap2010:WorkflowViewState.IdRef="ForEach`1_2" Values="[attachmentsFolder.GetDirectories()]">
+          <ui:ForEach.Body>
+            <ActivityAction x:TypeArguments="si:DirectoryInfo">
+              <ActivityAction.Argument>
+                <DelegateInArgument x:TypeArguments="si:DirectoryInfo" Name="folder" />
+              </ActivityAction.Argument>
+              <Sequence DisplayName="For Each Folder Body" sap:VirtualizedContainerService.HintSize="650,4919" sap2010:WorkflowViewState.IdRef="Sequence_3">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <ui:ForEach x:TypeArguments="si:FileInfo" CurrentIndex="{x:Null}" sap2010:Annotation.AnnotationText="Iterate through files in each folder." DisplayName="For Each File in Folder" sap:VirtualizedContainerService.HintSize="608,4827" sap2010:WorkflowViewState.IdRef="ForEach`1_1" Values="[folder.GetFiles()]">
+                  <ui:ForEach.Body>
+                    <ActivityAction x:TypeArguments="si:FileInfo">
+                      <ActivityAction.Argument>
+                        <DelegateInArgument x:TypeArguments="si:FileInfo" Name="file" />
+                      </ActivityAction.Argument>
+                      <Sequence DisplayName="For Each File Body" sap:VirtualizedContainerService.HintSize="572,4662" sap2010:WorkflowViewState.IdRef="Sequence_2">
+                        <Sequence.Variables>
+                          <Variable x:TypeArguments="x:String" Name="invoiceNumber" />
+                          <Variable x:TypeArguments="sd:DataTable" Name="invoiceDetails" />
+                          <Variable x:TypeArguments="x:String" Name="invoiceDate" />
+                          <Variable x:TypeArguments="sd:DataRow" Default="[out_invoiceInformation.NewRow()]" Name="invoiceInformationRow" />
+                          <Variable x:TypeArguments="x:String" Name="text" />
+                        </Sequence.Variables>
+                        <sap:WorkflowViewStateService.ViewState>
+                          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                          </scg:Dictionary>
+                        </sap:WorkflowViewStateService.ViewState>
+                        <ui:StartProcess Arguments="{x:Null}" WorkingDirectory="{x:Null}" sap2010:Annotation.AnnotationText="Open the file to be scraped." DisplayName="Start Process" FileName="[file.FullName]" sap:VirtualizedContainerService.HintSize="530,118" sap2010:WorkflowViewState.IdRef="StartProcess_1">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:StartProcess>
+                        <Sequence sap2010:Annotation.AnnotationText="Scrape data from the opened file." DisplayName="Screen Scraping" sap:VirtualizedContainerService.HintSize="530,2820" sap2010:WorkflowViewState.IdRef="Sequence_7">
+                          <Sequence.Variables>
+                            <Variable x:TypeArguments="ui:Window" Name="currentWindow" />
+                          </Sequence.Variables>
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                          <ui:WindowScope SearchScope="{x:Null}" TimeoutMS="{x:Null}" Window="{x:Null}" sap2010:Annotation.AnnotationText="Attach the file window to start scraping data from it." ApplicationWindow="[currentWindow]" DisplayName="Attach File Window '*_*_*.pdf Acrobatsd'" sap:VirtualizedContainerService.HintSize="488,2558" sap2010:WorkflowViewState.IdRef="WindowScope_1" InformativeScreenshot="f8b4c295047e0f587204e038b76ccc1d" Selector="&lt;wnd app='acrord32.exe' cls='AcrobatSDIWindow' title='*_*_*.pdf - Adobe Acrobat Reader (32-bit)' /&gt;">
+                            <ui:WindowScope.Body>
+                              <ActivityAction x:TypeArguments="x:Object">
+                                <ActivityAction.Argument>
+                                  <DelegateInArgument x:TypeArguments="x:Object" Name="ContextTarget" />
+                                </ActivityAction.Argument>
+                                <Sequence DisplayName="Attach Window Do" sap:VirtualizedContainerService.HintSize="454,2381" sap2010:WorkflowViewState.IdRef="Sequence_6">
+                                  <Sequence.Variables>
+                                    <Variable x:TypeArguments="x:Int32" Name="pagesInFile" />
+                                    <Variable x:TypeArguments="x:Int32" Default="2" Name="tableIndex" />
+                                  </Sequence.Variables>
+                                  <sap:WorkflowViewStateService.ViewState>
+                                    <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                      <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                    </scg:Dictionary>
+                                  </sap:WorkflowViewStateService.ViewState>
+                                  <ui:GetFullText IgnoreHidden="{x:Null}" sap2010:Annotation.AnnotationText="Get invoice number and save it in invoiceNumber variable." DisplayName="Get Full Text 'Invoice # *'" sap:VirtualizedContainerService.HintSize="412,148" sap2010:WorkflowViewState.IdRef="GetFullText_1">
+                                    <ui:GetFullText.Target>
+                                      <ui:Target ClippingRegion="{x:Null}" Element="{x:Null}" Id="34a3c911-108e-404f-a448-f3da29f487fb" InformativeScreenshot="24fa8062557eed0ff717b3eb9f8ab9a2" Selector="&lt;wnd aaname='Document Pane' cls='AVL_AVView' title='AVScrolledPageView' /&gt;&lt;wnd cls='AVL_AVView' title='AVPageView' /&gt;&lt;ctrl idx='2' role='row' /&gt;&lt;ctrl name='Invoice # * ' role='text' /&gt;">
+                                        <ui:Target.TimeoutMS>
+                                          <InArgument x:TypeArguments="x:Int32" />
+                                        </ui:Target.TimeoutMS>
+                                        <ui:Target.WaitForReady>
+                                          <InArgument x:TypeArguments="ui:WaitForReady" />
+                                        </ui:Target.WaitForReady>
+                                      </ui:Target>
+                                    </ui:GetFullText.Target>
+                                    <ui:GetFullText.Text>
+                                      <OutArgument x:TypeArguments="x:String">[invoiceNumber]</OutArgument>
+                                    </ui:GetFullText.Text>
+                                    <sap:WorkflowViewStateService.ViewState>
+                                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                      </scg:Dictionary>
+                                    </sap:WorkflowViewStateService.ViewState>
+                                  </ui:GetFullText>
+                                  <ui:GetFullText IgnoreHidden="{x:Null}" sap2010:Annotation.AnnotationText="Get invoice date and save it in invoiceDate variable." DisplayName="Get Full Text 'Invoice Date: *'" sap:VirtualizedContainerService.HintSize="412,137" sap2010:WorkflowViewState.IdRef="GetFullText_2">
+                                    <ui:GetFullText.Target>
+                                      <ui:Target ClippingRegion="{x:Null}" Element="{x:Null}" Id="d2905f2a-207a-4dd9-a26b-65ea2a819976" InformativeScreenshot="fc3a5e7d1f7436835aa2fb6c77ecbb17" Selector="&lt;wnd aaname='Document Pane' cls='AVL_AVView' title='AVScrolledPageView' /&gt;&lt;wnd cls='AVL_AVView' title='AVPageView' /&gt;&lt;ctrl role='row' idx='2' /&gt;&lt;ctrl name='Invoice Date: * ' role='text' /&gt;">
+                                        <ui:Target.TimeoutMS>
+                                          <InArgument x:TypeArguments="x:Int32" />
+                                        </ui:Target.TimeoutMS>
+                                        <ui:Target.WaitForReady>
+                                          <InArgument x:TypeArguments="ui:WaitForReady" />
+                                        </ui:Target.WaitForReady>
+                                      </ui:Target>
+                                    </ui:GetFullText.Target>
+                                    <ui:GetFullText.Text>
+                                      <OutArgument x:TypeArguments="x:String">[invoiceDate]</OutArgument>
+                                    </ui:GetFullText.Text>
+                                    <sap:WorkflowViewStateService.ViewState>
+                                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                      </scg:Dictionary>
+                                    </sap:WorkflowViewStateService.ViewState>
+                                  </ui:GetFullText>
+                                  <ui:BuildDataTable sap2010:Annotation.AnnotationText="Build a data table with the columns of the invoice details to be used to populate the excel sheet and save it in invoiceDetails variable.&#xA;&#xA;This is needed to accomodate for the tables expanding over multiple pages to solve the issue of columns shifting when a new page is scraped for data." DataTable="[invoiceDetails]" DisplayName="Build Invoice Details Data Table" sap:VirtualizedContainerService.HintSize="412,176" sap2010:WorkflowViewState.IdRef="BuildDataTable_1" TableInfo="&lt;NewDataSet&gt;&#xA;  &lt;xs:schema id=&quot;NewDataSet&quot; xmlns=&quot;&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:msdata=&quot;urn:schemas-microsoft-com:xml-msdata&quot;&gt;&#xA;    &lt;xs:element name=&quot;NewDataSet&quot; msdata:IsDataSet=&quot;true&quot; msdata:MainDataTable=&quot;TableName&quot; msdata:UseCurrentLocale=&quot;true&quot;&gt;&#xA;      &lt;xs:complexType&gt;&#xA;        &lt;xs:choice minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot;&gt;&#xA;          &lt;xs:element name=&quot;TableName&quot;&gt;&#xA;            &lt;xs:complexType&gt;&#xA;              &lt;xs:sequence&gt;&#xA;                &lt;xs:element name=&quot;ID&quot; msdata:Caption=&quot;&quot; minOccurs=&quot;0&quot;&gt;&#xA;                  &lt;xs:simpleType&gt;&#xA;                    &lt;xs:restriction base=&quot;xs:string&quot;&gt;&#xA;                      &lt;xs:maxLength value=&quot;100&quot; /&gt;&#xA;                    &lt;/xs:restriction&gt;&#xA;                  &lt;/xs:simpleType&gt;&#xA;                &lt;/xs:element&gt;&#xA;                &lt;xs:element name=&quot;DESCRIPTION&quot; msdata:Caption=&quot;&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;&#xA;                &lt;xs:element name=&quot;QTY&quot; msdata:Caption=&quot;&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;&#xA;                &lt;xs:element name=&quot;PRICE&quot; msdata:Caption=&quot;&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;&#xA;                &lt;xs:element name=&quot;TOTAL&quot; msdata:Caption=&quot;&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot; /&gt;&#xA;              &lt;/xs:sequence&gt;&#xA;            &lt;/xs:complexType&gt;&#xA;          &lt;/xs:element&gt;&#xA;        &lt;/xs:choice&gt;&#xA;      &lt;/xs:complexType&gt;&#xA;    &lt;/xs:element&gt;&#xA;  &lt;/xs:schema&gt;&#xA;&lt;/NewDataSet&gt;">
+                                    <sap:WorkflowViewStateService.ViewState>
+                                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                      </scg:Dictionary>
+                                    </sap:WorkflowViewStateService.ViewState>
+                                  </ui:BuildDataTable>
+                                  <upap:GetPDFPageCount sap2010:Annotation.AnnotationText="Get the page count of the file and save it in pagesInFile variable to get the whole invoice details for invoices stretching over multiple pages." DisplayName="Get PDF Page Count" FileName="[file.FullName]" sap:VirtualizedContainerService.HintSize="412,116" sap2010:WorkflowViewState.IdRef="GetPDFPageCount_1" PageCount="[pagesInFile]">
+                                    <sap:WorkflowViewStateService.ViewState>
+                                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                      </scg:Dictionary>
+                                    </sap:WorkflowViewStateService.ViewState>
+                                  </upap:GetPDFPageCount>
+                                  <ui:InterruptibleDoWhile sap2010:Annotation.AnnotationText="Loop and scrape invoice details over every page of the file." Condition="[pagesInFile&gt;0]" DisplayName="Do 'Extract invoice details' While 'There is still pages unprocessed' " sap:VirtualizedContainerService.HintSize="412,1410" sap2010:WorkflowViewState.IdRef="InterruptibleDoWhile_1">
+                                    <ui:InterruptibleDoWhile.Body>
+                                      <Sequence DisplayName="Do While Body" sap:VirtualizedContainerService.HintSize="376,1214" sap2010:WorkflowViewState.IdRef="Sequence_8">
+                                        <Sequence.Variables>
+                                          <Variable x:TypeArguments="sd:DataTable" Name="scrapedInvoice" />
+                                        </Sequence.Variables>
+                                        <sap:WorkflowViewStateService.ViewState>
+                                          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                          </scg:Dictionary>
+                                        </sap:WorkflowViewStateService.ViewState>
+                                        <ui:Comment sap:VirtualizedContainerService.HintSize="334,131" sap2010:WorkflowViewState.IdRef="Comment_1" Text="// A variable with name tableIndex and type of integer is created with a default value of 2 to make the invoice details table selector dynamic and accomodate to tables stretching over multiple pages." />
+                                        <ui:ExtractData DelayBetweenPagesMS="{x:Null}" NextLinkSelector="{x:Null}" sap2010:Annotation.AnnotationText="Get Invoice Details from the table in the file and save the result in scrapedInvoice DataTable variable." ContinueOnError="True" DataTable="[scrapedInvoice]" DisplayName="Extract Structured Data 'Invoice Details table'" ExtractMetadata="&lt;extract-table get_columns_name='1' get_empty_columns='1' columns_name_source='Longest' /&gt;" sap:VirtualizedContainerService.HintSize="334,148" sap2010:WorkflowViewState.IdRef="ExtractData_1" MaxNumberOfResults="0" SimulateClick="True">
+                                          <ui:ExtractData.Target>
+                                            <ui:Target ClippingRegion="{x:Null}" Element="{x:Null}" Id="2d84d5a1-a5f7-4fce-9563-879656992f12" InformativeScreenshot="818b12bb1f1bd4370966faf460ac2e0f" Selector="&lt;wnd aaname='Document Pane' cls='AVL_AVView' title='AVScrolledPageView' /&gt;&lt;wnd cls='AVL_AVView' title='AVPageView' /&gt;&lt;ctrl idx='{{tableIndex}}' role='table' /&gt;">
+                                              <ui:Target.TimeoutMS>
+                                                <InArgument x:TypeArguments="x:Int32" />
+                                              </ui:Target.TimeoutMS>
+                                              <ui:Target.WaitForReady>
+                                                <InArgument x:TypeArguments="ui:WaitForReady" />
+                                              </ui:Target.WaitForReady>
+                                            </ui:Target>
+                                          </ui:ExtractData.Target>
+                                          <sap:WorkflowViewStateService.ViewState>
+                                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                            </scg:Dictionary>
+                                          </sap:WorkflowViewStateService.ViewState>
+                                        </ui:ExtractData>
+                                        <Assign sap2010:Annotation.AnnotationText="Decrease the pagesInFile variable by one to indicate a page processed." sap:VirtualizedContainerService.HintSize="334,102" sap2010:WorkflowViewState.IdRef="Assign_1">
+                                          <Assign.To>
+                                            <OutArgument x:TypeArguments="x:Int32">[pagesInFile]</OutArgument>
+                                          </Assign.To>
+                                          <Assign.Value>
+                                            <InArgument x:TypeArguments="x:Int32">[pagesInFile-1]</InArgument>
+                                          </Assign.Value>
+                                          <sap:WorkflowViewStateService.ViewState>
+                                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                            </scg:Dictionary>
+                                          </sap:WorkflowViewStateService.ViewState>
+                                        </Assign>
+                                        <Assign sap2010:Annotation.AnnotationText="Increase the tableIndex variable by one to select the table in the next page correctly." sap:VirtualizedContainerService.HintSize="334,102" sap2010:WorkflowViewState.IdRef="Assign_2">
+                                          <Assign.To>
+                                            <OutArgument x:TypeArguments="x:Int32">[tableIndex]</OutArgument>
+                                          </Assign.To>
+                                          <Assign.Value>
+                                            <InArgument x:TypeArguments="x:Int32">[tableIndex+1]</InArgument>
+                                          </Assign.Value>
+                                          <sap:WorkflowViewStateService.ViewState>
+                                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                            </scg:Dictionary>
+                                          </sap:WorkflowViewStateService.ViewState>
+                                        </Assign>
+                                        <ui:ForEachRow CurrentIndex="{x:Null}" sap2010:Annotation.AnnotationText="Iterate through rows in scrapedInvoice to add them to the invoiceDetails data table to accomodate for the shifted columns issue in invoices stretching across multiple pages." DataTable="[scrapedInvoice]" DisplayName="For Each Row in the Scraped Invoice" sap:VirtualizedContainerService.HintSize="334,375" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
+                                          <ui:ForEachRow.Body>
+                                            <ActivityAction x:TypeArguments="sd:DataRow">
+                                              <ActivityAction.Argument>
+                                                <DelegateInArgument x:TypeArguments="sd:DataRow" Name="row" />
+                                              </ActivityAction.Argument>
+                                              <Sequence DisplayName="Body" sap:VirtualizedContainerService.HintSize="242,156" sap2010:WorkflowViewState.IdRef="Sequence_10">
+                                                <sap:WorkflowViewStateService.ViewState>
+                                                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                                  </scg:Dictionary>
+                                                </sap:WorkflowViewStateService.ViewState>
+                                                <ui:AddDataRow DataRow="{x:Null}" sap2010:Annotation.AnnotationText="Add the row to invoiceDetails variable." ArrayRow="[row.ItemArray]" DataTable="[invoiceDetails]" DisplayName="Add Data Row" sap:VirtualizedContainerService.HintSize="200,64" sap2010:WorkflowViewState.IdRef="AddDataRow_1">
+                                                  <sap:WorkflowViewStateService.ViewState>
+                                                    <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                                      <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                                    </scg:Dictionary>
+                                                  </sap:WorkflowViewStateService.ViewState>
+                                                </ui:AddDataRow>
+                                              </Sequence>
+                                            </ActivityAction>
+                                          </ui:ForEachRow.Body>
+                                          <sap:WorkflowViewStateService.ViewState>
+                                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                            </scg:Dictionary>
+                                          </sap:WorkflowViewStateService.ViewState>
+                                        </ui:ForEachRow>
+                                        <ui:ClearDataTable sap2010:Annotation.AnnotationText="Clear the scrapedInvoice datatable." DataTable="[scrapedInvoice]" DisplayName="Clear Data Table" sap:VirtualizedContainerService.HintSize="334,64" sap2010:WorkflowViewState.IdRef="ClearDataTable_3">
+                                          <sap:WorkflowViewStateService.ViewState>
+                                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                            </scg:Dictionary>
+                                          </sap:WorkflowViewStateService.ViewState>
+                                        </ui:ClearDataTable>
+                                      </Sequence>
+                                    </ui:InterruptibleDoWhile.Body>
+                                    <sap:WorkflowViewStateService.ViewState>
+                                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                      </scg:Dictionary>
+                                    </sap:WorkflowViewStateService.ViewState>
+                                  </ui:InterruptibleDoWhile>
+                                  <Assign sap2010:Annotation.AnnotationText="Revert tableIndex back to default value to select the table in the next file correctly." sap:VirtualizedContainerService.HintSize="412,102" sap2010:WorkflowViewState.IdRef="Assign_3">
+                                    <Assign.To>
+                                      <OutArgument x:TypeArguments="x:Int32">[tableIndex]</OutArgument>
+                                    </Assign.To>
+                                    <Assign.Value>
+                                      <InArgument x:TypeArguments="x:Int32">2</InArgument>
+                                    </Assign.Value>
+                                    <sap:WorkflowViewStateService.ViewState>
+                                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                                      </scg:Dictionary>
+                                    </sap:WorkflowViewStateService.ViewState>
+                                  </Assign>
+                                </Sequence>
+                              </ActivityAction>
+                            </ui:WindowScope.Body>
+                            <sap:WorkflowViewStateService.ViewState>
+                              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                              </scg:Dictionary>
+                            </sap:WorkflowViewStateService.ViewState>
+                          </ui:WindowScope>
+                          <ui:CloseWindow Selector="{x:Null}" TimeoutMS="{x:Null}" sap2010:Annotation.AnnotationText="Close The file after being processed." DisplayName="Close Window" sap:VirtualizedContainerService.HintSize="488,99" sap2010:WorkflowViewState.IdRef="CloseWindow_1" UseWindow="[currentWindow]" WaitForReady="INTERACTIVE">
+                            <sap:WorkflowViewStateService.ViewState>
+                              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                              </scg:Dictionary>
+                            </sap:WorkflowViewStateService.ViewState>
+                          </ui:CloseWindow>
+                        </Sequence>
+                        <ui:WriteRange AddHeaders="True" sap2010:Annotation.AnnotationText="Write the invoiceDetails to the excel file named as CustomerName_InvoiceNumber.xlsx and save it in folder with the corresponding date of the invoice." DataTable="[invoiceDetails]" DisplayName="Write Range" sap:VirtualizedContainerService.HintSize="530,172" sap2010:WorkflowViewState.IdRef="WriteRange_1" SheetName="[file.Name.Split({&quot;_&quot;c})(0)]" StartingCell="A3" WorkbookPath="[&quot;Invoices/&quot;+file.Name.Split({&quot;_&quot;c})(1)+&quot;/&quot;+file.Name.Split({&quot;_&quot;c})(0)+&quot;_&quot;+file.Name.Split({&quot;_&quot;c})(2).Split({&quot;.&quot;c})(0)+&quot;.xlsx&quot;]">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:WriteRange>
+                        <ui:WriteCell sap2010:Annotation.AnnotationText="Write the invoiceNumber to the excel file named as CustomerName_InvoiceNumber.xlsx and save it in folder with the corresponding date of the invoice." Cell="E1" DisplayName="Write Cell" sap:VirtualizedContainerService.HintSize="530,172" sap2010:WorkflowViewState.IdRef="WriteCell_1" SheetName="[file.Name.Split({&quot;_&quot;c})(0)]" Text="[invoiceNumber]" WorkbookPath="[&quot;Invoices/&quot;+file.Name.Split({&quot;_&quot;c})(1)+&quot;/&quot;+file.Name.Split({&quot;_&quot;c})(0)+&quot;_&quot;+file.Name.Split({&quot;_&quot;c})(2).Split({&quot;.&quot;c})(0)+&quot;.xlsx&quot;]">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:WriteCell>
+                        <ui:WriteCell sap2010:Annotation.AnnotationText="Write the invoiceDate to the excel file named as CustomerName_InvoiceNumber.xlsx and save it in folder with the corresponding date of the invoice." Cell="E2" DisplayName="Write Cell" sap:VirtualizedContainerService.HintSize="530,172" sap2010:WorkflowViewState.IdRef="WriteCell_2" SheetName="[file.Name.Split({&quot;_&quot;c})(0)]" Text="[invoiceDate]" WorkbookPath="[&quot;Invoices/&quot;+file.Name.Split({&quot;_&quot;c})(1)+&quot;/&quot;+file.Name.Split({&quot;_&quot;c})(0)+&quot;_&quot;+file.Name.Split({&quot;_&quot;c})(2).Split({&quot;.&quot;c})(0)+&quot;.xlsx&quot;]">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:WriteCell>
+                        <ui:MultipleAssign sap2010:Annotation.AnnotationText="Add the customer name and invoice number to the data row that will be added to the out_invoiceInformation argument." DisplayName="Multiple Assign" sap:VirtualizedContainerService.HintSize="530,186" sap2010:WorkflowViewState.IdRef="MultipleAssign_1">
+                          <ui:MultipleAssign.AssignOperations>
+                            <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+                              <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_1">
+                                <ui:AssignOperation.To>
+                                  <OutArgument x:TypeArguments="x:Object">[invoiceInformationRow("Customer Name")]</OutArgument>
+                                </ui:AssignOperation.To>
+                                <ui:AssignOperation.Value>
+                                  <InArgument x:TypeArguments="x:Object">[file.Name.Split({"_"c})(0)]</InArgument>
+                                </ui:AssignOperation.Value>
+                              </ui:AssignOperation>
+                              <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_2">
+                                <ui:AssignOperation.To>
+                                  <OutArgument x:TypeArguments="x:Object">[invoiceInformationRow("Invoice Number")]</OutArgument>
+                                </ui:AssignOperation.To>
+                                <ui:AssignOperation.Value>
+                                  <InArgument x:TypeArguments="x:Object">[file.Name.Split({"_"c})(2).Split({"."c})(0)]</InArgument>
+                                </ui:AssignOperation.Value>
+                              </ui:AssignOperation>
+                            </scg:List>
+                          </ui:MultipleAssign.AssignOperations>
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:MultipleAssign>
+                        <ui:LookupDataTable LookupColumnIndex="{x:Null}" LookupDataColumn="{x:Null}" RowIndex="{x:Null}" TargetColumnIndex="{x:Null}" TargetDataColumn="{x:Null}" sap2010:Annotation.AnnotationText="Lookup the invoiceDetails data table for the value of sub total and Add it to the data row that will be added to the out_invoiceInformation argument." DataTable="[invoiceDetails]" DisplayName="Lookup invoiceDetails Data Table For Sub Total" sap:VirtualizedContainerService.HintSize="530,124" sap2010:WorkflowViewState.IdRef="LookupDataTable_2" LookupColumnName="PRICE" LookupValue="Sub Total " TargetColumnName="TOTAL">
+                          <ui:LookupDataTable.CellValue>
+                            <OutArgument x:TypeArguments="x:Object">[invoiceInformationRow("Sub Total")]</OutArgument>
+                          </ui:LookupDataTable.CellValue>
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:LookupDataTable>
+                        <ui:LookupDataTable LookupColumnIndex="{x:Null}" LookupDataColumn="{x:Null}" RowIndex="{x:Null}" TargetColumnIndex="{x:Null}" TargetDataColumn="{x:Null}" sap2010:Annotation.AnnotationText="Lookup the invoiceDetails data table for the value of GST and Add it to the data row that will be added to the out_invoiceInformation argument." DataTable="[invoiceDetails]" DisplayName="Lookup invoiceDetails Data Table For GST" sap:VirtualizedContainerService.HintSize="530,124" sap2010:WorkflowViewState.IdRef="LookupDataTable_3" LookupColumnName="PRICE" LookupValue="GST 8% " TargetColumnName="TOTAL">
+                          <ui:LookupDataTable.CellValue>
+                            <OutArgument x:TypeArguments="x:Object">[invoiceInformationRow("GST")]</OutArgument>
+                          </ui:LookupDataTable.CellValue>
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:LookupDataTable>
+                        <ui:LookupDataTable LookupColumnIndex="{x:Null}" LookupDataColumn="{x:Null}" RowIndex="{x:Null}" TargetColumnIndex="{x:Null}" TargetDataColumn="{x:Null}" sap2010:Annotation.AnnotationText="Lookup the invoiceDetails data table for the value of total and Add it to the data row that will be added to the out_invoiceInformation argument." DataTable="[invoiceDetails]" DisplayName="Lookup invoiceDetails Data Table For Total" sap:VirtualizedContainerService.HintSize="530,124" sap2010:WorkflowViewState.IdRef="LookupDataTable_4" LookupColumnName="PRICE" LookupValue="Total " TargetColumnName="TOTAL">
+                          <ui:LookupDataTable.CellValue>
+                            <OutArgument x:TypeArguments="x:Object">[invoiceInformationRow("Total")]</OutArgument>
+                          </ui:LookupDataTable.CellValue>
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:LookupDataTable>
+                        <ui:AddDataRow ArrayRow="{x:Null}" sap2010:Annotation.AnnotationText="Add the invoiceTotalRow to the out_invoiceTotal argument." DataRow="[invoiceInformationRow]" DataTable="[out_invoiceInformation]" DisplayName="Add Data Row To out_invoiceInformation" sap:VirtualizedContainerService.HintSize="530,79" sap2010:WorkflowViewState.IdRef="AddDataRow_2">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:AddDataRow>
+                        <ui:ClearDataTable sap2010:Annotation.AnnotationText="Clear the invoiceDetails data table to save the next invoice data in it." DataTable="[invoiceDetails]" DisplayName="Clear Data Table" sap:VirtualizedContainerService.HintSize="530,79" sap2010:WorkflowViewState.IdRef="ClearDataTable_5">
+                          <sap:WorkflowViewStateService.ViewState>
+                            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                            </scg:Dictionary>
+                          </sap:WorkflowViewStateService.ViewState>
+                        </ui:ClearDataTable>
+                      </Sequence>
+                    </ActivityAction>
+                  </ui:ForEach.Body>
+                  <sap:WorkflowViewStateService.ViewState>
+                    <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                      <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                    </scg:Dictionary>
+                  </sap:WorkflowViewStateService.ViewState>
+                </ui:ForEach>
+              </Sequence>
+            </ActivityAction>
+          </ui:ForEach.Body>
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+              <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+        </ui:ForEach>
+      </TryCatch.Try>
+      <TryCatch.Catches>
+        <Catch x:TypeArguments="si:DirectoryNotFoundException" sap:VirtualizedContainerService.HintSize="400,360" sap2010:WorkflowViewState.IdRef="Catch`1_1">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ActivityAction x:TypeArguments="si:DirectoryNotFoundException">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="si:DirectoryNotFoundException" Name="exception" />
+            </ActivityAction.Argument>
+            <Sequence sap:VirtualizedContainerService.HintSize="376,287" sap2010:WorkflowViewState.IdRef="Sequence_11">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:LogMessage sap2010:Annotation.AnnotationText="Log the error and warn that there may be no attachments found." DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="334,133" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;Couldn't find attachments folder, There might be no attachments downloaded: &quot;+exception.Source + vbCrLf + exception.Message]">
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+              </ui:LogMessage>
+              <TerminateWorkflow DisplayName="Terminate Workflow" Exception="[exception]" sap:VirtualizedContainerService.HintSize="334,22" sap2010:WorkflowViewState.IdRef="TerminateWorkflow_1" />
+            </Sequence>
+          </ActivityAction>
+        </Catch>
+      </TryCatch.Catches>
+    </TryCatch>
+  </Sequence>
+</Activity>

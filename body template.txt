@@ -1,0 +1,3 @@
+Hello {0},
+This is a confirmation email that {1}'s invoice number {2}, has been successfully uploaded to your queue.
+Best regards.
